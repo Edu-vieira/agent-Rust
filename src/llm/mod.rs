@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::time::Duration;
 
-const API_URL: &str = "http://127.0.0.1:11434/api/chat";
-const MODEL: &str = "gemma3:4b";
+const DEFAULT_API_URL: &str = "http://127.0.0.1:11434/api/chat";
+const DEFAULT_MODEL: &str = "gemma3:4b";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatMessage {
@@ -134,23 +134,16 @@ pub fn new_system_message(tools: &[String]) -> ChatMessage {
     }
 }
 
-pub fn new_session(prompt: &str, tools: &[String]) -> Vec<ChatMessage> {
-    vec![
-        new_system_message(tools),
-        ChatMessage {
-            role: "user".to_string(),
-            content: prompt.to_string(),
-        },
-    ]
-}
-
 pub async fn ask(messages: &[ChatMessage]) -> Result<AgentResponse, Box<dyn std::error::Error>> {
+    let api_url =
+        std::env::var("AI_AGENT_OLLAMA_URL").unwrap_or_else(|_| DEFAULT_API_URL.to_string());
+    let model = std::env::var("AI_AGENT_MODEL").unwrap_or_else(|_| DEFAULT_MODEL.to_string());
     let client = Client::builder()
         .timeout(Duration::from_secs(180))
         .build()?;
 
     let payload = json!({
-        "model": MODEL,
+        "model": model,
         "messages": messages,
         "stream": false,
         "think": false,
@@ -162,7 +155,7 @@ pub async fn ask(messages: &[ChatMessage]) -> Result<AgentResponse, Box<dyn std:
         }
     });
 
-    let response = client.post(API_URL).json(&payload).send().await?;
+    let response = client.post(&api_url).json(&payload).send().await?;
 
     let status = response.status();
     let body = response.text().await?;

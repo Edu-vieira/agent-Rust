@@ -39,12 +39,4 @@ impl Conversation {
     pub fn clear(&mut self) {
         self.messages.clear();
     }
-
-    pub fn len(&self) -> usize {
-        self.messages.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.messages.is_empty()
-    }
 }

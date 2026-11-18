@@ -6,7 +6,9 @@ pub struct Memory {
 
 impl Memory {
     pub fn new() -> Result<Self, rusqlite::Error> {
-        let connection = Connection::open("agent_memory.db")?;
+        let database_path =
+            std::env::var("AI_AGENT_MEMORY_DB").unwrap_or_else(|_| "agent_memory.db".to_string());
+        let connection = Connection::open(database_path)?;
 
         connection.execute(
             "CREATE TABLE IF NOT EXISTS memories (

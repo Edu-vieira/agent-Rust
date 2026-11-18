@@ -33,9 +33,12 @@ impl ToolRegistry {
     }
 
     pub fn descriptions(&self) -> Vec<String> {
-        self.tools
+        let mut descriptions: Vec<String> = self
+            .tools
             .values()
             .map(|tool| format!("{}: {}", tool.name, tool.description))
-            .collect()
+            .collect();
+        descriptions.sort();
+        descriptions
     }
 }

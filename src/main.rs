@@ -24,7 +24,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut message = String::new();
 
-        io::stdin().read_line(&mut message)?;
+        if io::stdin().read_line(&mut message)? == 0 {
+            println!("\nEntrada encerrada. Finalizando o agente...");
+            break;
+        }
 
         let message = message.trim();
 

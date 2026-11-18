@@ -50,11 +50,6 @@ pub async fn handle_message(
             content: serde_json::to_string(&decision)?,
         });
 
-        // Verifica se o agente terminou.
-        if decision.action == "none" {
-            return Ok(decision.response);
-        }
-
         // Impede operações além do limite.
         if step == MAX_STEPS {
             return Ok(format!("Limite de {} operações atingido.", MAX_STEPS));

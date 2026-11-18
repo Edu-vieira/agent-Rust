@@ -100,26 +100,25 @@ pub fn build_registry(memory: SharedMemory) -> ToolRegistry {
         name: "memory_save".to_string(),
         description: "Armazena uma informação persistente. Argumentos: key e value.".to_string(),
 
-        handler: Box::new(|args| {
-            let path = args["path"]
+        handler: Box::new(move |args| {
+            let key = args["key"]
                 .as_str()
-                .ok_or("O argumento 'path' é obrigatório.")?;
+                .ok_or("O argumento 'key' é obrigatório.")?;
 
-            let content = args["content"]
+            let value = args["value"]
                 .as_str()
-                .ok_or("O argumento 'content' é obrigatório.")?;
+                .ok_or("O argumento 'value' é obrigatório.")?;
 
-            println!("\n[DEBUG] create_file recebeu:");
-            println!("[DEBUG] path: {:?}", path);
-            println!("[DEBUG] content: {:?}", content);
+            if key.trim().is_empty() {
+                return Err("A chave não pode estar vazia.".to_string());
+            }
 
-            filesystem::create_file(path, content)
-                .map_err(|error| {
-                    format!(
-                        "Falha ao criar arquivo. Caminho recebido: {:?}. Erro: {}",
-                        path, error
-                    )
-                })
+            let memory = memory_save
+                .lock()
+                .map_err(|_| "Falha ao acessar a memória.".to_string())?;
+
+            memory.save(key, value).map_err(|e| e.to_string())?;
+            Ok(format!("Informação '{}' salva com sucesso.", key))
         }),
     });
 

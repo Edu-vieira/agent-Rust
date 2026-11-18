@@ -1,1 +1,3 @@
 /target
+agent_memory.db-shm
+agent_memory.db-wal
